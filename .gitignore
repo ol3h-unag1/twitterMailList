@@ -1,0 +1,17 @@
+
+messages.html
+TwitterMailList.vcxproj
+*.filters
+*.user
+*.dt
+*.command
+*.json
+*.ifc
+*.obj
+*.log
+*.recipe
+*.ilk
+*.tlog
+*.txt
+*.idb
+*.pdb
