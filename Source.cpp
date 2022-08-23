@@ -125,13 +125,19 @@ bool InitMailList()
     return true;
 }
 
-bool ReadDB(std::vector< HandlerUsageInfoRT >& readTo)
+// return pair <bool, container> where bool is a flag is DB read was ok, and contaier holds DB records
+auto ReadDB()
 {
     std::ifstream is{ HandlersUsageDataBase, std::ios::binary };
     std::cout << std::format("\t\tStream state:\n\t\t\tgood {}\n\t\t\tbad {}\n\t\t\tfail {}\n\t\t\teof {}", is.good(), is.bad(), is.fail(), is.eof()) << std::endl;
 
-    if(readTo.capacity() < DefaultVectorCapacity)
-        readTo.reserve(DefaultVectorCapacity);
+    std::pair< bool, std::vector< HandlerUsageInfoRT > > result;
+
+    auto& dbReadOk = result.first;
+    dbReadOk = true;
+
+    auto& records = result.second;
+    records.reserve(DefaultVectorCapacity);
 
     while (true)
     {
@@ -139,21 +145,22 @@ bool ReadDB(std::vector< HandlerUsageInfoRT >& readTo)
         if (!is.read(reinterpret_cast<char*>(&data), sizeof data))
         {
             if (is.eof())
-                return true;
+                return result;
 
             std::cout << std::format("\tError reading data-base entry.") << std::endl;
             std::cout << std::format("Stream state:\ngood {}\nbad {}\nfail {}\neof {}", is.good(), is.bad(), is.fail(), is.eof()) << std::endl;
-            return false;
+            dbReadOk = false;
+            return result;
         }
 
         std::string const handler = data.handler;
         std::size_t const usageAmount = data.frequency;
         Clock_Type::time_point const timeLastUsed{ Clock_Type::duration{ data.lastTimeUsed } };
 
-        readTo.push_back({ handler, usageAmount, timeLastUsed });
+        records.push_back({ handler, usageAmount, timeLastUsed });
     }
 
-    return true;
+    return result;
 } 
 
 int main()
@@ -174,14 +181,15 @@ int main()
    std::cout << std::format("\tInitializarion complete.") << std::endl;
 
    std::cout << std::format("Reading data-base.") << std::endl;
-   std::vector< HandlerUsageInfoRT > huirt;
-   if (!ReadDB(huirt))
+    
+   auto [result, records] = ReadDB();
+   if (!result)
    {
-       std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", huirt.size()) << std::endl;
+       std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
        return 3;
    };
 
-   std::cout << std::format("\nDatabase read succeed. Entries read {}.", huirt.size()) << std::endl;
+   std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
 
     // LS: show tags based on frequency of usage
 
