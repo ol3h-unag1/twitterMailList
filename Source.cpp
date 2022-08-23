@@ -178,8 +178,7 @@ int main()
        return 1;
    }
 
-   std::cout << std::format("\tInitializarion complete.") << std::endl;
-
+   std::cout << std::format("DB is ready.") << std::endl;
    std::cout << std::format("Reading data-base.") << std::endl;
     
    auto [result, records] = ReadDB();
