@@ -131,11 +131,8 @@ auto ReadDB()
     std::ifstream is{ HandlersUsageDataBase, std::ios::binary };
     std::cout << std::format("\t\tStream state:\n\t\t\tgood {}\n\t\t\tbad {}\n\t\t\tfail {}\n\t\t\teof {}", is.good(), is.bad(), is.fail(), is.eof()) << std::endl;
 
-    std::pair< bool, std::vector< HandlerUsageInfoRT > > result;
-
+    std::pair< bool, std::vector< HandlerUsageInfoRT > > result{ true, {} };
     auto& dbReadOk = result.first;
-    dbReadOk = true;
-
     auto& records = result.second;
     records.reserve(DefaultVectorCapacity);
 
