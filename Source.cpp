@@ -4,6 +4,8 @@ import <iostream>;
 import <fstream>;
 
 import <string>;
+import <string_view>;
+
 import <format>;
 
 import <algorithm>;
@@ -51,7 +53,12 @@ struct HandlerUsageInfoRT
     Clock_Type::time_point const lastTimeUsed;
 };
 
-bool InitMailList()
+class FileError : public std::exception
+{
+    FileError();
+};
+
+bool InitDatabase()
 {
     std::ifstream is{ UnparsedHandlersFilename };
 
@@ -162,11 +169,24 @@ auto ReadDB()
 
 int app()
 {
+    if (!std::filesystem::exists( HandlersUsageDataBase ))
+    {
+
+    }
+
+    try {
+        InitDatabase();
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    } catch (...) {
+
+    }
+
     bool databaseInited = true;
-    if (!std::filesystem::exists({ HandlersUsageDataBase }))
+    if (!std::filesystem::exists( HandlersUsageDataBase ))
     {
         std::cout << std::format("Can't open {} database file.\n Will try to init new database.", HandlersUsageDataBase) << std::endl;
-        databaseInited = InitMailList();
+        databaseInited = InitDatabase();
     }
 
     if (!databaseInited)
