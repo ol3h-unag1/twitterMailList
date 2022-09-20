@@ -55,7 +55,16 @@ struct HandlerUsageInfoRT
 
 class FileError : public std::exception
 {
-    FileError();
+public:
+    FileError(std::string filename)
+        : _filename(std::move(filename))
+    {}
+
+public:
+    virtual std::string const getName() const final { return _filename; }
+
+private:
+    std::string const _filename;
 };
 
 bool InitDatabase()
