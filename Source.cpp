@@ -18,6 +18,8 @@ import <filesystem>;
 
 import <source_location>;
 
+import FileErrorException;
+
 using Clock_Type = std::chrono::system_clock;
 
 std::string const UnparsedHandlersFilename{ "messages.html" }; 
@@ -55,35 +57,13 @@ struct HandlerUsageInfoRT
     Clock_Type::time_point const lastTimeUsed;
 };
 
-class FileError : public std::exception
-{
-public:
-    FileError(std::string filename, std::string what, const std::source_location location = std::source_location::current())
-        : _filename(std::move(filename))
-        , _what(std::move(what))
-        , _location(std::move(location))
-    {}
-
-public:
-    virtual std::string const getName() const noexcept final { return _filename; } // ! final noexcept
-    virtual const char* what() const noexcept { return _what.c_str(); }  // ! noexcept
-
-    std::string const say() const;
-
-private:
-    std::string const _filename;
-    std::string const _what;
-
-    std::source_location _location;
-};
-
 bool InitDatabase()
 {
     std::ifstream is{ UnparsedHandlersFilename };
 
     if (!is)
     {
-        throw FileError{UnparsedHandlersFilename, "std::ifstream can't open"};
+        //throw FileError{UnparsedHandlersFilename, "std::ifstream can't open"};
     }
 
     std::cout << std::format("Opened {} for reading.", UnparsedHandlersFilename) << std::endl;

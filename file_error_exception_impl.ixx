@@ -1,0 +1,4 @@
+module FileErrorException;
+
+FileError::FileError()
+{}
