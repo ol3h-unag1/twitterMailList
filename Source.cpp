@@ -160,32 +160,46 @@ auto ReadDB()
     return result;
 } 
 
+int app()
+{
+    bool databaseInited = true;
+    if (!std::filesystem::exists({ HandlersUsageDataBase }))
+    {
+        std::cout << std::format("Can't open {} database file.\n Will try to init new database.", HandlersUsageDataBase) << std::endl;
+        databaseInited = InitMailList();
+    }
+
+    if (!databaseInited)
+    {
+        std::cout << std::format("\tCan't initialize data-base. Exiting app.") << std::endl;
+        return 1;
+    }
+
+    std::cout << std::format("DB is ready.") << std::endl;
+    std::cout << std::format("Reading data-base.") << std::endl;
+
+    auto [result, records] = ReadDB();
+    if (!result)
+    {
+        std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
+        return 3;
+    };
+
+    std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
+
+    return 0;
+}
+
 int main()
 {
-   bool databaseInited = true;
-   if (!std::filesystem::exists({ HandlersUsageDataBase }))
-   {
-       std::cout << std::format("Can't open {} data-base file.\nInitializaiton...", HandlersUsageDataBase) << std::endl;
-       databaseInited = InitMailList();
-   }
+    try {
+        return app();
+    } catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    } catch (...) {
+        std::cout << "Unhandled exception!" << std::endl;
+    }
 
-   if (!databaseInited)
-   {
-       std::cout << std::format("\tCan't initialize data-base. Exiting app.") << std::endl;
-       return 1;
-   }
-
-   std::cout << std::format("DB is ready.") << std::endl;
-   std::cout << std::format("Reading data-base.") << std::endl;
-    
-   auto [result, records] = ReadDB();
-   if (!result)
-   {
-       std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
-       return 3;
-   };
-
-   std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
 
     // LS: show tags based on frequency of usage
 
