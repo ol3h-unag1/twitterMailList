@@ -16,6 +16,8 @@ import <exception>;
 
 import <filesystem>;
 
+import <source_location>;
+
 using Clock_Type = std::chrono::system_clock;
 
 std::string const UnparsedHandlersFilename{ "messages.html" }; 
@@ -56,15 +58,23 @@ struct HandlerUsageInfoRT
 class FileError : public std::exception
 {
 public:
-    FileError(std::string filename)
+    FileError(std::string filename, std::string what, const std::source_location location = std::source_location::current())
         : _filename(std::move(filename))
+        , _what(std::move(what))
+        , _location(std::move(location))
     {}
 
 public:
-    virtual std::string const getName() const final { return _filename; }
+    virtual std::string const getName() const noexcept final { return _filename; } // ! final noexcept
+    virtual const char* what() const noexcept { return _what.c_str(); }  // ! noexcept
+
+    std::string const say() const;
 
 private:
     std::string const _filename;
+    std::string const _what;
+
+    std::source_location _location;
 };
 
 bool InitDatabase()
@@ -73,8 +83,7 @@ bool InitDatabase()
 
     if (!is)
     {
-        std::cout << std::format("Can't open {}", UnparsedHandlersFilename) << std::endl;
-        return false;
+        throw FileError{UnparsedHandlersFilename, "std::ifstream can't open"};
     }
 
     std::cout << std::format("Opened {} for reading.", UnparsedHandlersFilename) << std::endl;
@@ -180,11 +189,18 @@ int app()
 {
     if (!std::filesystem::exists( HandlersUsageDataBase ))
     {
+        try {
+            InitDatabase();
+        }
+        catch (std::exception& e) {
+            std::cout << e.what() << std::endl;
+        }
+        catch (...) {
 
+        }
     }
 
     try {
-        InitDatabase();
     } catch (std::exception& e) {
         std::cout << e.what() << std::endl;
     } catch (...) {
@@ -231,6 +247,5 @@ int main()
 
 
     // LS: show tags based on frequency of usage
-
 
 }
