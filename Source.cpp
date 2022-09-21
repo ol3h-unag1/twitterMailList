@@ -6,6 +6,8 @@ import <fstream>;
 import <string>;
 import <string_view>;
 
+import <memory>;
+
 import <format>;
 
 import <algorithm>;
@@ -19,6 +21,9 @@ import <filesystem>;
 import <source_location>;
 
 import FileErrorException;
+import Log;
+
+std::unique_ptr< Log::Logger > gLog{};
 
 using Clock_Type = std::chrono::system_clock;
 
@@ -40,7 +45,7 @@ auto isCorrectHandlerLen = [](auto const& len)
 
 auto isAllowedHandlerSymbol = [](std::string::value_type const& s)
 {
-    // big/small letter, digits and underscore with @
+    // big/small letters, digits and underscore with @
     static std::string const allowedSymbols{ "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_@" };
     return std::find(allowedSymbols.begin(), allowedSymbols.end(), s) != allowedSymbols.end();
 };
@@ -68,7 +73,7 @@ bool InitDatabase()
         throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
     }
 
-    std::cout << std::format("Opened {} for reading.", UnparsedHandlersFilename) << std::endl;
+    gLog->log(std::format("Opened {} for reading.", UnparsedHandlersFilename));
 
     // holding those @twats
     std::vector< std::string > handlers;
@@ -169,6 +174,13 @@ auto ReadDB()
 
 int app()
 {
+    if (gLog)
+    {
+        throw std::logic_error("Global log should not be is initialized before this!");
+    }
+
+    gLog = std::make_unique<Log::Logger>();
+
     if (!std::filesystem::exists( HandlersUsageDataBase ))
     {
         try {
@@ -183,18 +195,6 @@ int app()
         catch (...) {
 
         }
-    }
-
-    try {
-    } 
-    catch(FileError& e) {
-        std::cout << e.say() << std::endl;
-    } 
-    catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-    } 
-    catch (...) {
-
     }
 
     bool databaseInited = true;

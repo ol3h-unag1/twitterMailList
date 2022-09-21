@@ -5,7 +5,7 @@ import <iostream>;
 
 Log::Logger::~Logger()
 {
-    bool flush{ _messages.size() };
+    bool flush{ !_messages.empty()};
     while (_messages.size())
     {
         std::cout << _messages.front() << "\n";

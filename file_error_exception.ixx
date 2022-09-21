@@ -4,6 +4,7 @@ import <exception>;
 import <string>;
 import <source_location>;
 
+// separate to FileError and Error classes?
 export class FileError : public std::exception
 {
 public:
