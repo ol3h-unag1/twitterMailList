@@ -19,3 +19,9 @@ void Log::Logger::log(std::string msg)
 {
     _messages.emplace(std::move(msg));
 }
+
+Log::Logger& Log::Logger::operator<<(std::string msg)
+{
+    log(std::move(msg));
+    return *this;;
+}

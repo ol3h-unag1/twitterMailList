@@ -73,7 +73,7 @@ bool InitDatabase()
         throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
     }
 
-    gLog->log(std::format("Opened {} for reading.", UnparsedHandlersFilename));
+    *gLog << std::format("Opened {} for reading.\n", UnparsedHandlersFilename);
 
     // holding those @twats
     std::vector< std::string > handlers;
@@ -141,7 +141,7 @@ bool InitDatabase()
 auto ReadDB()
 {
     std::ifstream is{ HandlersUsageDataBase, std::ios::binary };
-    std::cout << std::format("\t\tStream state:\n\t\t\tgood {}\n\t\t\tbad {}\n\t\t\tfail {}\n\t\t\teof {}", is.good(), is.bad(), is.fail(), is.eof()) << std::endl;
+    *gLog << std::format("\t\tStream state:\n\t\t\tgood {}\n\t\t\tbad {}\n\t\t\tfail {}\n\t\t\teof {}\n", is.good(), is.bad(), is.fail(), is.eof());
 
     std::pair< bool, std::vector< HandlerUsageInfoRT > > result{ true, {} };
     auto& dbReadOk = result.first;
@@ -156,8 +156,7 @@ auto ReadDB()
             if (is.eof())
                 return result;
 
-            std::cout << std::format("\tError reading data-base entry.") << std::endl;
-            std::cout << std::format("Stream state:\ngood {}\nbad {}\nfail {}\neof {}", is.good(), is.bad(), is.fail(), is.eof()) << std::endl;
+            *gLog << std::format("\tError reading data-base entry.\nStream state:\ngood {}\nbad {}\nfail {}\neof {}\n", is.good(), is.bad(), is.fail(), is.eof());
             dbReadOk = false;
             return result;
         }
@@ -197,30 +196,30 @@ int app()
         }
     }
 
-    bool databaseInited = true;
-    if (!std::filesystem::exists( HandlersUsageDataBase ))
-    {
-        std::cout << std::format("Can't open {} database file.\n Will try to init new database.", HandlersUsageDataBase) << std::endl;
-        databaseInited = InitDatabase();
-    }
+    //bool databaseInited = true;
+    //if (!std::filesystem::exists( HandlersUsageDataBase ))
+    //{
+    //    std::cout << std::format("Can't open {} database file.\n Will try to init new database.", HandlersUsageDataBase) << std::endl;
+    //    databaseInited = InitDatabase();
+    //}
 
-    if (!databaseInited)
-    {
-        std::cout << std::format("\tCan't initialize data-base. Exiting app.") << std::endl;
-        return 1;
-    }
+    //if (!databaseInited)
+    //{
+    //    std::cout << std::format("\tCan't initialize data-base. Exiting app.") << std::endl;
+    //    return 1;
+    //}
 
-    std::cout << std::format("DB is ready.") << std::endl;
-    std::cout << std::format("Reading data-base.") << std::endl;
+    //std::cout << std::format("DB is ready.") << std::endl;
+    //std::cout << std::format("Reading data-base.") << std::endl;
 
-    auto [result, records] = ReadDB();
-    if (!result)
-    {
-        std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
-        return 3;
-    };
+    //auto [result, records] = ReadDB();
+    //if (!result)
+    //{
+    //    std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
+    //    return 3;
+    //};
 
-    std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
+    //std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
 
     return 0;
 }
