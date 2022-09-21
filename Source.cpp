@@ -31,6 +31,8 @@ std::size_t const MinHandlerLen{ 4u + 1u };  // counting '@' as part of ID strin
 std::size_t const MaxHandlerLen{ 15u + 1u }; // counting '@' as part of ID string
 std::size_t const DefaultVectorCapacity{ 1024u };
 
+auto WORKAROUND1630686{ std::source_location::current() }; // https://developercommunity.visualstudio.com/t/internal-compiler-error-in-msvc-compiler-in-visual/1630686
+
 auto isCorrectHandlerLen = [](auto const& len)
 {
     return MinHandlerLen <= len && len <= MaxHandlerLen;
@@ -63,7 +65,7 @@ bool InitDatabase()
 
     if (!is)
     {
-        //throw FileError{UnparsedHandlersFilename, "std::ifstream can't open"};
+        throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
     }
 
     std::cout << std::format("Opened {} for reading.", UnparsedHandlersFilename) << std::endl;
