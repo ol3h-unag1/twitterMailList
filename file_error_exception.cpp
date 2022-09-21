@@ -1,4 +1,1 @@
 module FileErrorException;
-
-FileError::FileError()
-{}
