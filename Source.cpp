@@ -63,6 +63,8 @@ bool InitDatabase()
 {
     std::ifstream is{ UnparsedHandlersFilename };
 
+    throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
+
     if (!is)
     {
         throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
@@ -174,6 +176,9 @@ int app()
         try {
             InitDatabase();
         }
+        catch (FileError& e) {
+            std::cout << e.say() << std::endl;
+        }
         catch (std::exception& e) {
             std::cout << e.what() << std::endl;
         }
@@ -183,9 +188,14 @@ int app()
     }
 
     try {
-    } catch (std::exception& e) {
+    } 
+    catch(FileError& e) {
+        std::cout << e.say() << std::endl;
+    } 
+    catch (std::exception& e) {
         std::cout << e.what() << std::endl;
-    } catch (...) {
+    } 
+    catch (...) {
 
     }
 
