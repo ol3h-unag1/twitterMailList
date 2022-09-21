@@ -63,8 +63,6 @@ bool InitDatabase()
 {
     std::ifstream is{ UnparsedHandlersFilename };
 
-    throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
-
     if (!is)
     {
         throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
