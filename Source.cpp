@@ -206,43 +206,6 @@ int app()
     auto records{ ReadDB()};
     *gLog << std::format("\nDatabase read succeed. Entries read {}.\n", records.size());
 
-    try {
-    }
-    catch (FileError& e) {
-        std::cout << e.say() << std::endl;
-    }
-    catch (std::exception& e) {
-        std::cout << e.what() << std::endl;
-    }
-    catch (...) {
-        std::cout << "Unhandled exception!" << std::endl;
-    }
-
-    //bool databaseInited = true;
-    //if (!std::filesystem::exists( HandlersUsageDataBase ))
-    //{
-    //    std::cout << std::format("Can't open {} database file.\n Will try to init new database.", HandlersUsageDataBase) << std::endl;
-    //    databaseInited = InitDatabase();
-    //}
-
-    //if (!databaseInited)
-    //{
-    //    std::cout << std::format("\tCan't initialize data-base. Exiting app.") << std::endl;
-    //    return 1;
-    //}
-
-    //std::cout << std::format("DB is ready.") << std::endl;
-    //std::cout << std::format("Reading data-base.") << std::endl;
-
-    //auto [result, records] = ReadDB();
-    //if (!result)
-    //{
-    //    std::cout << std::format("\tError reading DB. Entries read {}. Exiting app.", records.size()) << std::endl;
-    //    return 3;
-    //};
-
-    //std::cout << std::format("\nDatabase read succeed. Entries read {}.", records.size()) << std::endl;
-
     return 0;
 }
 
@@ -256,7 +219,6 @@ int main()
         std::cout << "Unhandled exception!" << std::endl;
     }
 
-
-    // LS: show tags based on frequency of usage
+    // LS: show tags based on frequency of usage   
 
 }
