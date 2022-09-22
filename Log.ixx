@@ -17,6 +17,8 @@ export namespace Log {
         void log(std::string msg);
         Logger& operator<<(std::string msg);
 
+        void flush();
+
     private:
         std::queue< std::string > _messages;
     };

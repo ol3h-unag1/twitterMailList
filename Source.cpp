@@ -23,7 +23,7 @@ import <source_location>;
 import FileErrorException;
 import Log;
 
-std::unique_ptr< Log::Logger > gLog{};
+Log::Logger* gLog{ nullptr };
 
 using Clock_Type = std::chrono::system_clock;
 
@@ -64,16 +64,20 @@ struct HandlerUsageInfoRT
     Clock_Type::time_point const lastTimeUsed;
 };
 
-bool InitDatabase()
+// parses handlers from text file
+// creates binary database file 
+// 
+// throws FileError:    
+//      - if can't read unparsed handlers file
+//      - can't open/create binary
+void InitDatabase()
 {
     std::ifstream is{ UnparsedHandlersFilename };
 
     if (!is)
-    {
         throw FileError{ UnparsedHandlersFilename, "std::ifstream can't open" };
-    }
 
-    *gLog << std::format("Opened {} for reading.\n", UnparsedHandlersFilename);
+    *gLog << std::format("InitDatabase: Opened {} for reading.", UnparsedHandlersFilename);
 
     // holding those @twats
     std::vector< std::string > handlers;
@@ -103,13 +107,15 @@ bool InitDatabase()
         // find end of id position @abc123!
         auto const idEndIter = std::find_if_not(idStartIter, stringToParse.end(), isAllowedHandlerSymbol);
         std::size_t const idEnd{ idStart + std::size_t(idEndIter - idStartIter) - 1 };
-  
+
         // check id lenght
         if (!isCorrectHandlerLen(idEnd - idStart))
             continue;
-         
+
         handlers.push_back(stringToParse.substr(idStart, idEnd - idStart + 1));
-    }
+    } // check input stream state after the loop?
+
+    *gLog << std::format("\tRead {} handlers. Preparing to create {}", handlers.size(), HandlersUsageDataBase);
 
     std::vector< HandlerFreqTimeBinInfo > dataToWrite;
     dataToWrite.reserve(handlers.size());
@@ -126,39 +132,40 @@ bool InitDatabase()
     }
 
     std::ofstream os{ HandlersUsageDataBase, std::ios::binary };
-    if (!os.is_open()) 
-        return false;
+    if (!os.is_open())
+        throw FileError{ HandlersUsageDataBase, "std::ofstream can't open file (std::ios::binary)" };
 
     for (auto const& data : dataToWrite)
         os.write(reinterpret_cast<char const*>(&data), sizeof data);
 
-    os.close();
+    // check output stream state after the loop?
+    os.close(); // unnecessary
 
-    return true;
+    *gLog << std::format("\t{} records saved to {}", dataToWrite.size(), HandlersUsageDataBase);
 }
 
 // return pair <bool, container> where bool is a flag is DB read was ok, and contaier holds DB records
 auto ReadDB()
 {
     std::ifstream is{ HandlersUsageDataBase, std::ios::binary };
-    *gLog << std::format("\t\tStream state:\n\t\t\tgood {}\n\t\t\tbad {}\n\t\t\tfail {}\n\t\t\teof {}\n", is.good(), is.bad(), is.fail(), is.eof());
+    if (!is)
+        throw FileError{ HandlersUsageDataBase, "std::ifstream can't open file (std::ios::binary)" };
 
-    std::pair< bool, std::vector< HandlerUsageInfoRT > > result{ true, {} };
-    auto& dbReadOk = result.first;
-    auto& records = result.second;
+    *gLog << std::format("ReadDB {}: Stream state:\n\tgood {}\n\tbad {}\n\tfail {}\n\tteof {}", HandlersUsageDataBase, is.good(), is.bad(), is.fail(), is.eof());
+
+    std::vector< HandlerUsageInfoRT > records{};
     records.reserve(DefaultVectorCapacity);
 
-    while (true)
+    while (is)
     {
         HandlerFreqTimeBinInfo data;
         if (!is.read(reinterpret_cast<char*>(&data), sizeof data))
         {
             if (is.eof())
-                return result;
+                return records;
 
-            *gLog << std::format("\tError reading data-base entry.\nStream state:\ngood {}\nbad {}\nfail {}\neof {}\n", is.good(), is.bad(), is.fail(), is.eof());
-            dbReadOk = false;
-            return result;
+            *gLog << std::format("\tError reading data-base entry. Stream state:\n\tgood {}\n\tbad {}\n\tfail {}\n\teof {}", is.good(), is.bad(), is.fail(), is.eof());
+            throw FileError{ HandlersUsageDataBase, "std::ifstream error reading data"};
         }
 
         std::string const handler = data.handler;
@@ -166,19 +173,16 @@ auto ReadDB()
         Clock_Type::time_point const timeLastUsed{ Clock_Type::duration{ data.lastTimeUsed } };
 
         records.push_back({ handler, usageAmount, timeLastUsed });
-    }
+    } // check input stream state after the loop?
 
-    return result;
+
+    return records;
 } 
 
 int app()
 {
-    if (gLog)
-    {
-        throw std::logic_error("Global log should not be is initialized before this!");
-    }
-
-    gLog = std::make_unique<Log::Logger>();
+    Log::Logger log;
+    gLog = &log;
 
     if (!std::filesystem::exists( HandlersUsageDataBase ))
     {
@@ -187,13 +191,31 @@ int app()
         }
         catch (FileError& e) {
             std::cout << e.say() << std::endl;
+            return 1;
         }
         catch (std::exception& e) {
             std::cout << e.what() << std::endl;
+            return 1;
         }
         catch (...) {
-
+            std::cout << "Unhandled exception!" << std::endl;
+            return 1;
         }
+    }
+
+    auto records{ ReadDB()};
+    *gLog << std::format("\nDatabase read succeed. Entries read {}.\n", records.size());
+
+    try {
+    }
+    catch (FileError& e) {
+        std::cout << e.say() << std::endl;
+    }
+    catch (std::exception& e) {
+        std::cout << e.what() << std::endl;
+    }
+    catch (...) {
+        std::cout << "Unhandled exception!" << std::endl;
     }
 
     //bool databaseInited = true;
