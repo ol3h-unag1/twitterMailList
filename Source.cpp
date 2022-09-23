@@ -20,6 +20,8 @@ import <filesystem>;
 
 import <source_location>;
 
+import InitModule;
+
 import FileErrorException;
 import Log;
 
@@ -211,6 +213,8 @@ int app()
 
 int main()
 {
+
+
     try {
         return app();
     } catch (std::exception& e) {
@@ -219,6 +223,8 @@ int main()
         std::cout << "Unhandled exception!" << std::endl;
     }
 
+    // Designing app
+    // 
     // LS: show tags based on frequency of usage   
 
 }
