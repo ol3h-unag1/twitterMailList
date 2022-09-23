@@ -16,3 +16,5 @@ TwitterMailList.vcxproj
 *.idb
 *.pdb
 .~lock.TML Project.ods\#
+*.bak_000f
+*.lck
