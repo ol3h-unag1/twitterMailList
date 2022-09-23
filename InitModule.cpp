@@ -1,6 +1,9 @@
 module InitModule;
 
-void MyFunc()
-{   
-    int i = 0;
+import DataModel;
+
+int foo()
+{
+    MyFunc();
+    return 1;
 }
