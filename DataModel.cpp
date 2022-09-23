@@ -12,7 +12,13 @@ namespace Model
         DataImpl(DataImpl&&) = default;
         DataImpl& operator=(DataImpl&&) = default;
 
+        DataImpl(std::string);
+
     private:
         std::optional< std::string > _value;
     };
+
+    Data::DataImpl::DataImpl(std::string)
+    {
+    }
 }
