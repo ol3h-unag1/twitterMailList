@@ -1,3 +1,9 @@
 export module DataModel;
 
-export void MyFunc();
+export namespace Model
+{
+    class Data
+    {
+        class DataImpl;
+    };
+}
