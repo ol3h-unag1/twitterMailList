@@ -20,8 +20,6 @@ import <filesystem>;
 
 import <source_location>;
 
-import InitModule;
-
 import FileErrorException;
 import Log;
 
@@ -122,11 +120,14 @@ void InitDatabase()
     std::vector< HandlerFreqTimeBinInfo > dataToWrite;
     dataToWrite.reserve(handlers.size());
 
-    for (auto const& handler : handlers)
+    for (auto const& h : handlers)
     {
         HandlerFreqTimeBinInfo data;
-        for (std::size_t i = 0u; i < handler.size() + 1; ++i)
-            data.handler[i] = handler[i];
+        for (std::size_t i = 0u; i < h.size() + 1; ++i)
+        {
+            data.handler[i] = h[i];
+        }
+
         data.frequency = 0u;
         data.lastTimeUsed = 0u;
 
@@ -213,8 +214,6 @@ int app()
 
 int main()
 {
-
-
     try {
         return app();
     } catch (std::exception& e) {
