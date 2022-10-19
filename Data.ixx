@@ -8,14 +8,13 @@ import <chrono>;
 
 export namespace DataModel
 {
-    // clock trait
-    using clock_type = std::chrono::system_clock;
-    using time_point_type = clock_type::time_point;
-    using duration_type = clock_type::duration;
-
-
     class Data
     {
+    public:
+        using clock_type = std::chrono::system_clock;
+        using time_point_type = clock_type::time_point;
+        using duration_type = clock_type::duration;
+
     public:
         Data() = default;
         Data(Data&&) noexcept = default;
@@ -36,6 +35,5 @@ export namespace DataModel
         std::string _twitterId;
         std::size_t _timesUsed{ 0u }; // times id was used already; amount
         time_point_type _lastUsed{ duration_type { 0u } }; // last time id was used; date
-
     };
 }
