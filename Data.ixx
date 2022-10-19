@@ -4,8 +4,16 @@ import <cstddef>;
 
 import <string>;
 
+import <chrono>;
+
 export namespace DataModel
 {
+    // clock trait
+    using clock_type = std::chrono::system_clock;
+    using time_point_type = clock_type::time_point;
+    using duration_type = clock_type::duration;
+
+
     class Data
     {
     public:
@@ -16,7 +24,7 @@ export namespace DataModel
         Data(std::string id, std::size_t times, std::size_t last)
             : _twitterId(std::move(id))
             , _timesUsed(times)
-            , _lastUsed(last)
+            , _lastUsed(duration_type{ last })
         {}
 
     public:
@@ -27,6 +35,7 @@ export namespace DataModel
     private:
         std::string _twitterId;
         std::size_t _timesUsed{ 0u }; // times id was used already; amount
-        std::size_t _lastUsed{ 0u }; // last time id was used; date
+        time_point_type _lastUsed{ duration_type { 0u } }; // last time id was used; date
+
     };
 }
