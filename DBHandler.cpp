@@ -29,6 +29,7 @@ namespace DataBase
 {
     std::string const UnparsedHandlersFilename{ "messages.html" };
     std::string const HandlersUsageDataBaseFileName{ "hudb.bin" };
+
     std::size_t const HandlersContainerDefaultCapacity{ 1024u };
 
     Handler::Handler() noexcept
@@ -37,34 +38,39 @@ namespace DataBase
     {}
 
     // handles reads and writes to DB
-    std::vector< DataModel::Data > Handler::Load()
+    std::vector< DataModel::Data > Handler::load()
     {
-        if (!IsInitialized())
+        reset();
+
+        if (!isInitialized())
         {
-            InitDatabase();
+            initDatabase();
+        }
+        else
+        {
+
         }
 
-        _loadedData.clear();
-        _loadedData.reserve(HandlersContainerDefaultCapacity);
-
-        return _loadedData;
+        return _cache;
     }
 
-    void Handler::Save(std::vector< DataModel::Data > const&) const 
+    void Handler::save(std::vector< DataModel::Data > const&) const 
     {
         
     }
 
-    bool Handler::IsInitialized() const
+    bool Handler::isInitialized() const
     {
         return std::filesystem::exists(_dbFileName);
     }
 
-    void Handler::InitDatabase() noexcept(false)
+    void Handler::initDatabase() noexcept(false)
     {
+        reset();
+
         // - - - - - - - - -
         // check invariant
-        if (IsInitialized())
+        if (isInitialized())
             throw FileError{ 
             _dbFileName, 
             "File already exists"
@@ -72,31 +78,32 @@ namespace DataBase
 
         // - - - - - - - - -
         // parse handlers from html
-        std::ifstream is{ UnparsedHandlersFilename };
+        std::ifstream is{ _unparsedHandlersFileName };
 
         if (not is)
             throw FileError{ 
-            UnparsedHandlersFilename, 
+            _unparsedHandlersFileName, 
             "std::ifstream can't open" 
         };
 
         _log << std::format(
             "InitDatabase: Opened {} for reading.", 
-            UnparsedHandlersFilename
+            _unparsedHandlersFileName
         );
 
-        std::vector< std::string > handlers{ GetSpecialHandlers() };
+        std::vector< std::string > handlers{ getSpecialHandlers() };
         handlers.reserve(HandlersContainerDefaultCapacity);
 
-        // 
         std::string stringToParse;
         while (is >> stringToParse)
         {
             // find @ in string that marks id beginning
             auto const idStartIter{ 
-                std::find(stringToParse.begin(), 
-                stringToParse.end(), 
-                DataModel::HandlerStartSymbol) 
+                std::find(
+                    begin(stringToParse),
+                    end(stringToParse),
+                    DataModel::HandlerStartSymbol
+                ) 
             };
 
             std::size_t const idStart{
@@ -108,7 +115,6 @@ namespace DataBase
             if (std::string::npos == idStart)
                 continue;
 
-            // find end of id position @abc123!
             auto const idEndIter{
                 std::find_if_not(
                     idStartIter, 
@@ -135,52 +141,59 @@ namespace DataBase
         _log << std::format(
             "\tRead {} handlers. Preparing to create {}", 
             handlers.size(), 
-            HandlersUsageDataBaseFileName
+            _dbFileName
         );
 
-        std::vector< DataModel::Raw > dataToWrite;
-        dataToWrite.reserve(handlers.size());
-
-        auto initRaw{
-            [](auto const& handlerString)
-        {
-                DataModel::Raw data;
-
-                if (handlerString.size() > DataModel::MaxHandlerLen)
+        std::vector< DataModel::Raw > raw;
+        raw.reserve(handlers.size());
+       
+        // populating data to write to binary
+        std::transform(
+            begin(handlers),
+            end(handlers), 
+            std::back_inserter( raw ), 
+            [](auto const& handler)
+            {
+                if (handler.size() > DataModel::MaxHandlerLen)
                     throw std::out_of_range(
                         "Handler size is to big!"
                     );
 
+                DataModel::Raw data{};
+
                 std::copy(
-                    begin(handlerString), 
-                    end(handlerString), 
+                    begin(handler),
+                    end(handler),
                     data.handler);
 
                 return data;
-        } };
-
-        std::transform(
-            begin(handlers),
-            end(handlers), 
-            std::back_inserter( dataToWrite ), 
-            initRaw);
+            });
         
+        // cache data 
+        std::transform(
+            begin(raw),
+            end(raw),
+            std::back_inserter(_cache),
+            [](auto const& raw)
+            {
+                return DataModel::Data(raw);
+            });
         
         // - - - - - - - - -
         // create binary files and write parsed data
         std::ofstream os{ 
-            HandlersUsageDataBaseFileName,
+            _dbFileName,
             std::ios::binary 
         };
 
         if (not os.is_open())
             throw FileError{ 
-            HandlersUsageDataBaseFileName,
+            _dbFileName,
             "std::ofstream can't open file (std::ios::binary)"
         };
 
-        for (auto const& data : dataToWrite)
-            os.write(reinterpret_cast<char const*>(&data), sizeof data);
+        for (auto const& bin : raw)
+            os.write(reinterpret_cast<char const*>(&bin), sizeof bin);
 
         _log << std::format(
             "Writing to binary ended {}.",
@@ -192,14 +205,25 @@ namespace DataBase
 
         _log << std::format(
             "\t{} records saved to {}", 
-            dataToWrite.size(), 
-            HandlersUsageDataBaseFileName
+            raw.size(), 
+            _dbFileName
         );
 
     }
 
-    std::vector<std::string> Handler::GetSpecialHandlers() const
+    std::vector<std::string> Handler::getSpecialHandlers() const
     {
         return { "@VP", "@UN", "@u2", "@jlo", "@bbc", "@cnn" }; // special handlers;
+    }
+
+    void Handler::reset()
+    {
+        _cache.clear();
+        _cache.reserve(HandlersContainerDefaultCapacity);
+    }
+
+    bool Handler::write(std::vector<DataModel::Raw> const& raw)
+    {
+        return false;
     }
 };
