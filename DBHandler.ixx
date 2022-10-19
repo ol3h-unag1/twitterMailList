@@ -31,6 +31,8 @@ export namespace DataBase
         std::string _dbFileName;
         std::string _unparsedHandlersFileName;
 
+        std::vector< DataModel::Data > _loadedData;
+
         Log::Logger _log;
     };
 };
