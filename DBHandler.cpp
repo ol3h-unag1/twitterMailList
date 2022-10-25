@@ -219,7 +219,6 @@ namespace DataBase
     void Handler::reset()
     {
         _cache.clear();
-        _cache.reserve(HandlersContainerDefaultCapacity);
     }
 
     bool Handler::write(std::vector<DataModel::Raw> const& raw)

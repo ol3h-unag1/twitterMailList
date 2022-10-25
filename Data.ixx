@@ -46,14 +46,14 @@ export namespace DataModel
         return allowed.contains(symbol);
     };
 
-    struct Raw
+    struct Raw final
     {
         char handler[MaxHandlerLen + 1]{ 0 }; // + '\0'
         std::size_t timesUsed{ 0u };
         std::size_t lastTimeUsed{ 0u };
     };
 
-    class Data
+    class Data final
     {
     public:
         using clock_type = std::chrono::system_clock;
@@ -70,13 +70,13 @@ export namespace DataModel
         Data& operator=(Data&&) noexcept = default;
 
     public:
-        Data(std::string_view id, std::size_t times, std::size_t last)
+        explicit Data(std::string_view id, std::size_t times, std::size_t last)
             : _twitterId(std::move(id))
             , _usagesCount(times)
             , _lastUsed(duration_type{ last })
         {}
 
-        Data(Raw const& raw)
+        explicit Data(Raw const& raw)
             : Data(
                 raw.handler,
                 raw.timesUsed,

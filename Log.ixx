@@ -22,7 +22,4 @@ export namespace Log {
     private:
         std::queue< std::string > _messages;
     };
-
-
-
 }

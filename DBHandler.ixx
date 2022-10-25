@@ -14,8 +14,9 @@ export namespace DataBase
     class Handler
     {
         Handler() noexcept;
+
     public:
-        std::vector< DataModel::Data > load();
+        [[nodiscard]] std::vector< DataModel::Data > load();
 
         void save(std::vector< DataModel::Data > const&) const;
 

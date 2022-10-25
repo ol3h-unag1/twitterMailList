@@ -21,7 +21,7 @@ Log::Logger& Log::Logger::operator<<(std::string msg)
 
 void Log::Logger::flush()
 {
-    bool flush{ !_messages.empty() };
+    bool flush{ not _messages.empty() };
     while (_messages.size())
     {
         std::cout << _messages.front() << "\n";

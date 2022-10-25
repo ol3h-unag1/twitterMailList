@@ -4,7 +4,13 @@ import <format>;
 
 Error::Error(std::string_view what, std::source_location location)
     : std::exception( what.data() )
-    , _message(std::format("{} at {}:{} in module {}", what, location.file_name(), location.line(), location.function_name()))
+    , _message(
+        std::format("{} at {}:{} in module {}",
+            what, 
+            location.file_name(), 
+            location.line(), 
+            location.function_name())
+    )
     , _location(std::move(location))
 {}
 
