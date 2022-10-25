@@ -34,7 +34,7 @@ export namespace DataBase
         
     private:
         // clears loaded data
-        void reset();
+        void clear();
 
         // writes raw data to binary
         bool write(std::vector< DataModel::Raw > const& raw);

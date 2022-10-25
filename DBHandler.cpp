@@ -40,7 +40,7 @@ namespace DataBase
     // handles reads and writes to DB
     std::vector< DataModel::Data > Handler::load()
     {
-        reset();
+        clear();
 
         if (!isInitialized())
         {
@@ -66,7 +66,7 @@ namespace DataBase
 
     void Handler::initDatabase() noexcept(false)
     {
-        reset();
+        clear();
 
         // - - - - - - - - -
         // check invariant
@@ -216,7 +216,7 @@ namespace DataBase
         return { "@VP", "@UN", "@u2", "@jlo", "@bbc", "@cnn" }; // special handlers;
     }
 
-    void Handler::reset()
+    void Handler::clear()
     {
         _cache.clear();
     }
