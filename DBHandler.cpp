@@ -40,15 +40,13 @@ namespace DataBase
     // handles reads and writes to DB
     std::vector< DataModel::Data > Handler::load()
     {
-        clear();
-
-        if (!isInitialized())
+        if (!isBinaryExists())
         {
             initDatabase();
         }
         else
         {
-
+            
         }
 
         return _cache;
@@ -59,18 +57,18 @@ namespace DataBase
         
     }
 
-    bool Handler::isInitialized() const
+    bool Handler::isBinaryExists() const
     {
         return std::filesystem::exists(_dbFileName);
     }
 
     void Handler::initDatabase() noexcept(false)
     {
-        clear();
+        clearCache();
 
         // - - - - - - - - -
         // check invariant
-        if (isInitialized())
+        if (isBinaryExists())
             throw FileError{ 
             _dbFileName, 
             "File already exists"
@@ -216,13 +214,18 @@ namespace DataBase
         return { "@VP", "@UN", "@u2", "@jlo", "@bbc", "@cnn" }; // special handlers;
     }
 
-    void Handler::clear()
+    void Handler::clearCache()
     {
         _cache.clear();
     }
 
-    bool Handler::write(std::vector<DataModel::Raw> const& raw)
+    bool Handler::writeToBinary(std::vector<DataModel::Raw> const& raw)
     {
         return false;
+    }
+
+    std::optional< std::vector< DataModel::Data > > Handler::readFromBinary()
+    {
+        return std::optional<std::vector<DataModel::Data>>();
     }
 };

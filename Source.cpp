@@ -182,7 +182,7 @@ auto ReadDB()
     return records;
 } 
 
-int app()
+int app_deprecated()
 {
     Log::Logger log;
     gLog = &log;
@@ -209,6 +209,11 @@ int app()
     auto records{ ReadDB()};
     *gLog << std::format("\nDatabase read succeed. Entries read {}.\n", records.size());
 
+    return 0;
+}
+
+int app()
+{
     return 0;
 }
 

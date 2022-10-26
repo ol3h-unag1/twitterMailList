@@ -21,9 +21,9 @@ export namespace DataBase
         void save(std::vector< DataModel::Data > const&) const;
 
         // checks if database file exists
-        bool isInitialized() const noexcept(false);
+        bool isBinaryExists() const noexcept(false);
 
-        bool isOk() const { return isInitialized() and _cache.size(); }
+        bool isOk() const { return isBinaryExists() and _cache.size(); }
 
     private:
         // parse twitter handlers from file and create bin file of database
@@ -34,13 +34,11 @@ export namespace DataBase
         
     private:
         // clears loaded data
-        void clear();
+        void clearCache();
 
-        // writes raw data to binary
-        bool write(std::vector< DataModel::Raw > const& raw);
+        bool writeToBinary(std::vector< DataModel::Raw > const& raw);
 
-        // reads raw data from binary
-        std::optional< std::vector< DataModel::Data > > read();
+        std::optional< std::vector< DataModel::Data > > readFromBinary();
 
     private:
         std::string _dbFileName;
