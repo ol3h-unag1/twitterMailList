@@ -2,6 +2,7 @@ module FileErrorException;
 
 import <format>;
 
+
 Error::Error(std::string_view what, std::source_location location)
     : std::exception( what.data() )
     , _message(

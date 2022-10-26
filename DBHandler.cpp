@@ -13,14 +13,16 @@ import <filesystem>;
 
 import <exception>;
 
-import <source_location>;
-
 import <algorithm>;
 
-import FileErrorException;
+import <source_location>;
 
+// 1>C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.33.31629\include\source_location(37): 
+// fatal  error C1001: Internal compiler error.
 // https://developercommunity.visualstudio.com/t/internal-compiler-error-in-msvc-compiler-in-visual/1630686
-auto WORKAROUND1630686_DB_HANDLER_CPP{ std::source_location::current() }; 
+auto WORKAROUND1630686_DB_HANDLER_CPP{ std::source_location::current() };
+
+import FileErrorException;
 
 using std::begin;
 using std::end;

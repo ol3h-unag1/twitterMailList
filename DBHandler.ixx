@@ -16,8 +16,10 @@ export namespace DataBase
         Handler() noexcept;
 
     public:
+        // loads data from DB
         [[nodiscard]] std::vector< DataModel::Data > load();
 
+        // saves data to DB
         void save(std::vector< DataModel::Data > const&) const;
 
         // checks if database file exists
